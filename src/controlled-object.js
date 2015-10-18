@@ -67,6 +67,8 @@ export const controlledObject = (object, executionContext, cache) => {
 				: v;
 		};
 
+		defineProxyProp(cachedProp.getter);
+		defineProxyProp(cachedProp.setter);
 		defProp(object, k, {
 			configurable: true,
 			enumerable: true,
