@@ -1,3 +1,6 @@
+const originalFn = '__originalFn';
+const reactProxy = '__reactProxy';
+
 const noop = x => x;
 const defProp = Object.defineProperty;
 const getDescriptor = Object.getOwnPropertyDescriptor;
@@ -10,9 +13,6 @@ const propDefaults = {
 	configurable: true,
 	writable: true
 };
-
-const originalFn = '__originalFn';
-const reactProxy = '__reactProxy';
 
 export const controlledObject = (object, executionContext, cache) => {
 

@@ -20,14 +20,16 @@ export default class FlatObject {
 
 		const flattened = this.flatten(proto, target, exclude) || obj;
 		let keys = ownKeys(flattened);
-		obj = keys.filter(k => !exclude.includes(k)).reduce((o, k) => {
-			const protoDescriptor = getDescriptor(flattened, k);
-			const ownDescriptor = getDescriptor(o, k);
-			if (!ownDescriptor) {
-				defProp(target, k, protoDescriptor);
-			}
-			return o;
-		}, obj);
+		obj = keys
+			.filter(k => !exclude.includes(k))
+			.reduce((o, k) => {
+				const protoDescriptor = getDescriptor(flattened, k);
+				const ownDescriptor = getDescriptor(o, k);
+				if (!ownDescriptor) {
+					defProp(target, k, protoDescriptor);
+				}
+				return o;
+			}, obj);
 
 		return obj;
 	}

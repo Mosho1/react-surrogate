@@ -13,10 +13,8 @@ const internals = ['_reactInternalInstance', '__reactAutoBindMap', 'refs'];
 
 const propCache = Symbol('propCache');
 const constructor = Symbol('constructor');
-// const reactProxy = Symbol('reactProxy');
 const reactProxy = '__reactProxy';
 const originalFn = '__originalFn';
-// const originalFn = Symbol('original unbound fn');
 
 const defProp = Object.defineProperty;
 
@@ -24,6 +22,7 @@ const isReactProxy = obj =>
 	obj && obj.hasOwnProperty(reactProxy);
 
 if (!Object.defineProperty.hijacked) {
+	// listen to properties defined using Object.defineProperty at runtime. Pretty hacky
 	Object.defineProperty = (...args) => {
 		if (isReactProxy(...args)) {
 			Object.emitter.emit('Object.defineProperty', args);
@@ -35,6 +34,7 @@ if (!Object.defineProperty.hijacked) {
 Object.emitter = new EE();
 Object.defineProperty.hijacked = true;
 
+// save a reference to the unbound function
 const protoBind = Function.prototype.bind;
 Function.prototype.bind = function(...args) {
 	const bound = protoBind.apply(this, args);
@@ -56,8 +56,12 @@ export class Proxy {
 
 		// derived classes share instances cache
 		this.proxied.prototype.instances = this.instances = Component.prototype.instances || new Set();
+
+		// and a cache of all classes in the prototype chain
 		this.proxied.prototypeSet = this.prototypeSet = Component.prototypeSet || new Set();
+
 		this.prototypeSet.add(this);
+
 		this.wrapLifestyleMethods(this.proxied.prototype);
 
 		// this holds metadata about properties
@@ -66,9 +70,12 @@ export class Proxy {
 		// legacy react type property
 		this.proxied.type = this.proxied;
 
+		// set up the initial proxied constructor
 		this.updateConstructor(Component);
 
 		defineProxyProp(this.proxied, {value: this});
+
+		// detect relevant Object.defineProperty calls and set a dirty flag
 		Object.emitter.on('Object.defineProperty', ([context, key, descriptor, noCache]) => {
 			if (context === this.proxied && !noCache) {
 				this[propCache][key] = {dirty: true};
@@ -107,14 +114,18 @@ export class Proxy {
 	}
 
 	update(Component) {
+
+		// update constructor
 		const instances = this.updateConstructor(Component);
 
+		// update all constructors in the prototype chain
 		this.prototypeSet.forEach(p => {
 			if (p !== this) {
 				p.updateConstructor();
 			}
 		});
 
+		// go over and update instances
 		instances.forEach(instance => {
 			// all inherited classes share the instances. we go over all of them each time any
 			// of the classes are updated, but only update instances using their current constructor
@@ -206,9 +217,9 @@ export class Proxy {
 			.on('set', set);
 
 		this.wrapLifestyleMethods(this.proxied.prototype);
+
 		this.proxied.prototype.constructor = this.proxied;
 		this.proxied.prototype.constructor.toString = Component.toString.bind(Component);
-
 
 		return [...this.instances];
 	}
@@ -238,7 +249,6 @@ export class Proxy {
 		}
 
 		controlledObject(flattened, instance, instance[propCache]);
-
 
 		// for instance-descriptor tests, don't delete properties which aren't on the prototype of the Component.
 		// warning: I currently have no idea what this does and why it makes things work

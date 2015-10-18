@@ -1,0 +1,2 @@
+c:\Users\sharo_000\AppData\Roaming\npm\mocha
+c:\Users\sharo_000\AppData\Roaming\npm\mocha.cmd

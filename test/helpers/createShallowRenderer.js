@@ -7,7 +7,9 @@
 */
 
 // Whatever
+try{
 global.document = {};
+}catch(e){}
 
 var ReactCompositeComponent = require("react/lib/ReactCompositeComponent");
 var ReactInstanceHandles = require("react/lib/ReactInstanceHandles");
