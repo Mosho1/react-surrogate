@@ -1,0 +1,28 @@
+{
+  "name": "react-surrogate",
+  "version": "0.1.2",
+  "description": "Proxies React components without unmounting or losing their state.",
+  "main": "modules/index.js",
+  "scripts": {
+    "test": "mocha --compilers js:babel/register ./test",
+    "test:watch": "mocha --compilers js:babel/register ./test --watch",
+    "build": "rimraf modules dist && webpack -p && babel src --out-dir modules",
+    "prepublish": "npm run build"
+  },
+  "author": "Sharon Rolel <sharonrolel@gmail.com> (http://github.com/Mosho1)",
+  "license": "MIT",
+  "devDependencies": {
+    "babel": "^5.1.13",
+    "babel-core": "^5.1.13",
+    "babel-loader": "^5.0.0",
+    "expect": "^1.9.0",
+    "mocha": "^2.2.4",
+    "react": "^0.13.2",
+    "rimraf": "^2.4.2",
+    "webpack": "1.4.8"
+  },
+  "dependencies": {
+    "react-deep-force-update": "^1.0.0",
+    "tiny-emitter": "^1.0.1"
+  }
+}
